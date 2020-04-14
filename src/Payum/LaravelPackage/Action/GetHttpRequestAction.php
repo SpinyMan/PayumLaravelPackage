@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Action;
 
 use Payum\Core\Bridge\Symfony\Action\GetHttpRequestAction as SymfonyGetHttpRequestAction;
@@ -14,5 +17,4 @@ class GetHttpRequestAction extends SymfonyGetHttpRequestAction
 
         parent::execute($request);
     }
-
-} 
+}

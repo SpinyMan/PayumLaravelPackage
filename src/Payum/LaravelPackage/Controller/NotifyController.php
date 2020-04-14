@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Controller;
 
 use Payum\Core\Reply\ReplyInterface;
@@ -29,7 +32,7 @@ class NotifyController extends PayumController
         try {
             $gateway->execute(new Notify($token));
         } catch (ReplyInterface $reply) {
-           return $this->convertReply($reply);
+            return $this->convertReply($reply);
         }
 
         return \Response::make(null, 204);

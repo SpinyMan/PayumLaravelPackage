@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Storage;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,41 +11,21 @@ use Payum\Core\Storage\AbstractStorage;
 
 class EloquentStorage extends AbstractStorage
 {
-    /**
-     * {@inheritDoc}
-     *
-     * @param Model $model
-     */
     protected function doUpdateModel($model)
     {
         $model->save();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param Model $model
-     */
     protected function doDeleteModel($model)
     {
         $model->delete();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @param Model $model
-     */
     protected function doGetIdentity($model)
     {
         return new Identity($model->{$model->getKeyName()}, $model);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return Model|null
-     */
     protected function doFind($id)
     {
         $modelClass = $this->modelClass;
@@ -50,14 +33,9 @@ class EloquentStorage extends AbstractStorage
         return $modelClass::find($id);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @return Model|null
-     */
     public function findBy(array $criteria)
     {
-        if (false == $criteria) {
+        if (!$criteria) {
             return [];
         }
 
@@ -66,7 +44,7 @@ class EloquentStorage extends AbstractStorage
         /** @var Builder $query */
         $query = null;
         foreach ($criteria as $name => $value) {
-            if (false == $query) {
+            if (!$query) {
                 $query = $modelClass::where($name, '=', $value);
             }
 

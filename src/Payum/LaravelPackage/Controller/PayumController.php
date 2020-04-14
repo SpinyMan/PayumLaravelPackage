@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Controller;
 
 use Illuminate\Routing\Controller;

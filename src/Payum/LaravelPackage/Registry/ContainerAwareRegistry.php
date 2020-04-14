@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Registry;
 
 use Illuminate\Container\Container;
@@ -11,17 +14,13 @@ class ContainerAwareRegistry extends AbstractRegistry
      */
     protected $container;
 
-    /**
-     * @param Container $container
-     */
-    public function setContainer(Container $container)
+    public function setContainer(Container $container): self
     {
         $this->container = $container;
+
+        return $this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     protected function getService($id)
     {
         return is_object($id) ? $id : $this->container[$id];

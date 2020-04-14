@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage;
 
 use Illuminate\Support\ServiceProvider;
@@ -25,7 +28,7 @@ class PayumServiceProvider extends ServiceProvider
     public function boot()
     {
         if (version_compare(Application::VERSION, '5.0', '<')) {
-            $srcDir = realpath(__DIR__ . '/../../');
+            $srcDir = dirname(__DIR__, 2) . '/';
 
             $this->package('payum/payum-laravel-package', 'payum-laravel-package', $srcDir);
         }
@@ -55,51 +58,75 @@ class PayumServiceProvider extends ServiceProvider
 
     protected function registerServices()
     {
-        $this->app->bind('payum.builder', function($app) {
-            $builder = new PayumBuilder();
-            $builder
-                ->setTokenFactory(function(StorageInterface $tokenStorage, StorageRegistryInterface $registry) {
-                    return new TokenFactory($tokenStorage, $registry);
-                })
-                ->setHttpRequestVerifier(function(StorageInterface $tokenStorage) {
-                    return new HttpRequestVerifier($tokenStorage);
-                })
-                ->setCoreGatewayFactory(function(array $defaultConfig) {
-                    $factory = new CoreGatewayFactory($defaultConfig);
-                    $factory->setContainer($this->app);
+        $this->app->bind(
+            'payum.builder',
+            function ($app) {
+                $builder = new PayumBuilder();
+                $builder
+                    ->setTokenFactory(
+                        static function (StorageInterface $tokenStorage, StorageRegistryInterface $registry) {
+                            return new TokenFactory($tokenStorage, $registry);
+                        }
+                    )
+                    ->setHttpRequestVerifier(
+                        static function (StorageInterface $tokenStorage) {
+                            return new HttpRequestVerifier($tokenStorage);
+                        }
+                    )
+                    ->setCoreGatewayFactory(
+                        function (array $defaultConfig) {
+                            $factory = new CoreGatewayFactory($defaultConfig);
+                            $factory->setContainer($this->app);
 
-                    return $factory;
-                })
-                ->setCoreGatewayFactoryConfig([
-                    'payum.action.get_http_request' => 'payum.action.get_http_request',
-                    'payum.action.obtain_credit_card' => 'payum.action.obtain_credit_card',
-                ])
-                ->setGenericTokenFactoryPaths([
-                    'capture' => 'payum_capture_do',
-                    'notify' => 'payum_notify_do',
-                    'authorize' => 'payum_authorize_do',
-                    'refund' => 'payum_refund_do',
-                ])
-            ;
+                            return $factory;
+                        }
+                    )
+                    ->setCoreGatewayFactoryConfig(
+                        [
+                            'payum.action.get_http_request'   => 'payum.action.get_http_request',
+                            'payum.action.obtain_credit_card' => 'payum.action.obtain_credit_card',
+                        ]
+                    )
+                    ->setGenericTokenFactoryPaths(
+                        [
+                            'capture'   => 'payum_capture_do',
+                            'notify'    => 'payum_notify_do',
+                            'authorize' => 'payum_authorize_do',
+                            'refund'    => 'payum_refund_do',
+                        ]
+                    );
 
-            return $builder;
-        });
+                return $builder;
+            }
+        );
 
-        $this->app->singleton('payum', function($app) {
-            return $app['payum.builder']->getPayum();
-        });
+        $this->app->singleton(
+            'payum',
+            static function ($app) {
+                return $app['payum.builder']->getPayum();
+            }
+        );
 
-        $this->app->singleton('payum.converter.reply_to_http_response', function($app) {
-            return new ReplyToSymfonyResponseConverter();
-        });
+        $this->app->singleton(
+            'payum.converter.reply_to_http_response',
+            static function ($app) {
+                return new ReplyToSymfonyResponseConverter();
+            }
+        );
 
-        $this->app->singleton('payum.action.get_http_request', function($app) {
-            return new GetHttpRequestAction();
-        });
+        $this->app->singleton(
+            'payum.action.get_http_request',
+            static function ($app) {
+                return new GetHttpRequestAction();
+            }
+        );
 
-        $this->app->singleton('payum.action.obtain_credit_card', function($app) {
-            return new ObtainCreditCardAction();
-        });
+        $this->app->singleton(
+            'payum.action.obtain_credit_card',
+            static function ($app) {
+                return new ObtainCreditCardAction();
+            }
+        );
     }
 
     /**
@@ -109,29 +136,44 @@ class PayumServiceProvider extends ServiceProvider
     {
         $route = $this->app->make('router');
 
-        $route->any('/payment/authorize/{payum_token}', array(
-            'as' => 'payum_authorize_do',
-            'uses' => 'Payum\LaravelPackage\Controller\AuthorizeController@doAction'
-        ));
+        $route->any(
+            '/payment/authorize/{payum_token}',
+            [
+                'as'   => 'payum_authorize_do',
+                'uses' => 'Payum\LaravelPackage\Controller\AuthorizeController@doAction',
+            ]
+        );
 
-        $route->any('/payment/capture/{payum_token}', array(
-            'as' => 'payum_capture_do',
-            'uses' => 'Payum\LaravelPackage\Controller\CaptureController@doAction'
-        ));
+        $route->any(
+            '/payment/capture/{payum_token}',
+            [
+                'as'   => 'payum_capture_do',
+                'uses' => 'Payum\LaravelPackage\Controller\CaptureController@doAction',
+            ]
+        );
 
-        $route->any('/payment/refund/{payum_token}', array(
-            'as' => 'payum_refund_do',
-            'uses' => 'Payum\LaravelPackage\Controller\RefundController@doAction'
-        ));
+        $route->any(
+            '/payment/refund/{payum_token}',
+            [
+                'as'   => 'payum_refund_do',
+                'uses' => 'Payum\LaravelPackage\Controller\RefundController@doAction',
+            ]
+        );
 
-        $route->any('/payment/notify/{payum_token}', array(
-            'as' => 'payum_notify_do',
-            'uses' => 'Payum\LaravelPackage\Controller\NotifyController@doAction'
-        ));
+        $route->any(
+            '/payment/notify/{payum_token}',
+            [
+                'as'   => 'payum_notify_do',
+                'uses' => 'Payum\LaravelPackage\Controller\NotifyController@doAction',
+            ]
+        );
 
-        $route->any('/payment/notify/unsafe/{gateway_name}', array(
-            'as' => 'payum_notify_do_unsafe',
-            'uses' => 'Payum\LaravelPackage\Controller\NotifyController@doUnsafeAction'
-        ));
+        $route->any(
+            '/payment/notify/unsafe/{gateway_name}',
+            [
+                'as'   => 'payum_notify_do_unsafe',
+                'uses' => 'Payum\LaravelPackage\Controller\NotifyController@doUnsafeAction',
+            ]
+        );
     }
 }

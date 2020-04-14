@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage;
 
 use Illuminate\Container\Container;
@@ -13,22 +16,17 @@ class CoreGatewayFactory extends BaseCoreGatewayFactory
      */
     private $container;
 
-    /**
-     * @param Container $container
-     */
-    public function setContainer(Container $container)
+    public function setContainer(Container $container): self
     {
         $this->container = $container;
+
+        return $this;
     }
 
-    /**
-     * @param Gateway     $gateway
-     * @param ArrayObject $config
-     */
     protected function buildActions(Gateway $gateway, ArrayObject $config)
     {
         foreach ($config as $name => $value) {
-            if (0 === strpos($name, 'payum.action') && false == is_object($config[$name])) {
+            if (false === is_object($config[$name]) && 0 === strpos($name, 'payum.action')) {
                 $config[$name] = $this->container[$config[$name]];
             }
         }
@@ -36,14 +34,10 @@ class CoreGatewayFactory extends BaseCoreGatewayFactory
         parent::buildActions($gateway, $config);
     }
 
-    /**
-     * @param Gateway     $gateway
-     * @param ArrayObject $config
-     */
     protected function buildApis(Gateway $gateway, ArrayObject $config)
     {
         foreach ($config as $name => $value) {
-            if (0 === strpos($name, 'payum.api') && false == is_object($config[$name])) {
+            if (false === is_object($config[$name]) && 0 === strpos($name, 'payum.api')) {
                 $config[$name] = $this->container[$config[$name]];
             }
         }
@@ -51,14 +45,10 @@ class CoreGatewayFactory extends BaseCoreGatewayFactory
         parent::buildApis($gateway, $config);
     }
 
-    /**
-     * @param Gateway     $gateway
-     * @param ArrayObject $config
-     */
     protected function buildExtensions(Gateway $gateway, ArrayObject $config)
     {
         foreach ($config as $name => $value) {
-            if (0 === strpos($name, 'payum.extension') && false == is_object($config[$name])) {
+            if (false === is_object($config[$name]) && 0 === strpos($name, 'payum.extension')) {
                 $config[$name] = $this->container[$config[$name]];
             }
         }

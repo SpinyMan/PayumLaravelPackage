@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Controller;
 
 use Payum\Core\Reply\ReplyInterface;
@@ -25,11 +28,10 @@ class RefundController extends PayumController
 
         $this->getPayum()->getHttpRequestVerifier()->invalidate($token);
 
-        if($token->getAfterUrl()){
+        if ($token->getAfterUrl()) {
             return \Redirect::to($token->getAfterUrl());
         }
 
         return \Response::make(null, 204);
-
     }
 }

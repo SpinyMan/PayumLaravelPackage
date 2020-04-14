@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types = 1);
+
 namespace Payum\LaravelPackage\Action;
 
 use Payum\Core\Action\ActionInterface;
@@ -16,17 +19,17 @@ class ObtainCreditCardAction implements ActionInterface
      */
     public function execute($request)
     {
-        /** @var $request ObtainCreditCard */
-        if (false == $this->supports($request)) {
+        /** @var ObtainCreditCard $request */
+        if ($this->supports($request) === false) {
             throw RequestNotSupportedException::createActionNotSupported($this, $request);
         }
 
         if (\Request::isMethod('POST')) {
-            $creditCard = new CreditCard;
-            $creditCard->setHolder(\Input::get('card_holder'));
-            $creditCard->setNumber(\Input::get('card_number'));
-            $creditCard->setSecurityCode(\Input::get('card_cvv'));
-            $creditCard->setExpireAt(new \DateTime(\Input::get('card_expire_at')));
+            $creditCard = new CreditCard();
+            $creditCard->setHolder(\Request::input('card_holder'));
+            $creditCard->setNumber(\Request::input('card_number'));
+            $creditCard->setSecurityCode(\Request::input('card_cvv'));
+            $creditCard->setExpireAt(new \DateTime(\Request::input('card_expire_at')));
 
             $request->set($creditCard);
 
@@ -64,10 +67,14 @@ class ObtainCreditCardAction implements ActionInterface
 </html>
 HTML;
 
-        throw new HttpResponse(new Response($content, 200, array(
-            'Cache-Control' => 'no-store, no-cache, max-age=0, post-check=0, pre-check=0',
-            'Pragma' => 'no-cache',
-        )));
+        throw new HttpResponse(
+            new Response(
+                $content, 200, [
+                'Cache-Control' => 'no-store, no-cache, max-age=0, post-check=0, pre-check=0',
+                'Pragma'        => 'no-cache',
+            ]
+            )
+        );
     }
 
     /**
